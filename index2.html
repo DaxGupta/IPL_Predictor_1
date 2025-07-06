@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPL Win Predictor</title>
+    <!-- Tailwind CSS CDN for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for a clean, modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for specific styling not covered by Tailwind or for overrides */
+        body {
+            font-family: 'Inter', sans-serif; /* Apply Inter font globally */
+            background-color: #f0f2f5; /* Light grey background for a soft feel */
+            display: flex; /* Use flexbox for centering content */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            min-height: 100vh; /* Full viewport height */
+            margin: 0; /* Remove default body margin */
+        }
+        .container-card {
+            background-color: #ffffff; /* White background for the card */
+            border-radius: 20px; /* More pronounced rounded corners */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Deeper, softer shadow */
+            padding: 40px;
+            max-width: 700px; /* Max width for larger screens */
+            width: 95%; /* Responsive width */
+            box-sizing: border-box; /* Include padding in width calculation */
+            animation: fadeIn 0.8s ease-out; /* Simple fade-in animation */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-input, .form-select {
+            border: 1px solid #d1d5db; /* Light grey border */
+            border-radius: 10px; /* Rounded input/select fields */
+            padding: 12px 15px; /* More padding */
+            width: 100%; /* Full width within its container */
+            box-sizing: border-box;
+            transition: all 0.3s ease; /* Smooth transitions for focus */
+        }
+        .form-input:focus, .form-select:focus {
+            border-color: #3b82f6; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Light blue shadow on focus */
+            outline: none; /* Remove default outline */
+        }
+        .btn-primary {
+            background-color: #22c55e; /* Vibrant green button */
+            color: white;
+            padding: 14px 30px;
+            border-radius: 12px; /* Rounded button */
+            font-weight: 600; /* Semi-bold text */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3); /* Green shadow */
+        }
+        .btn-primary:hover {
+            background-color: #16a34a; /* Darker green on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+        .result-display {
+            background-color: #e0f7fa; /* Light cyan background for results */
+            border: 1px solid #00bcd4; /* Cyan border */
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            font-size: 1.25rem; /* Larger font size for readability */
+            font-weight: 700; /* Bold text */
+            color: #006064; /* Dark cyan text */
+            text-align: center;
+            animation: slideIn 0.5s ease-out; /* Slide-in animation for results */
+        }
+        .error-message {
+            background-color: #ffebee; /* Light red background for errors */
+            border: 1px solid #ef5350; /* Red border */
+            color: #c62828; /* Dark red text */
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-weight: 500;
+            text-align: center;
+            animation: shake 0.4s ease-in-out; /* Shake animation for errors */
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-card">
+        <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-10">
+            <span class="text-yellow-500">IPL</span> Win Predictor
+        </h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Batting Team Selection -->
+            <div>
+                <label for="batting_team" class="block text-sm font-medium text-gray-700 mb-2">Batting Team:</label>
+                <select id="batting_team" class="form-select"></select>
+            </div>
+
+            <!-- Bowling Team Selection -->
+            <div>
+                <label for="bowling_team" class="block text-sm font-medium text-gray-700 mb-2">Bowling Team:</label>
+                <select id="bowling_team" class="form-select"></select>
+            </div>
+
+            <!-- Venue City Selection -->
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-2">Venue City:</label>
+                <select id="city" class="form-select"></select>
+            </div>
+
+            <!-- Target Score Input -->
+            <div>
+                <label for="target" class="block text-sm font-medium text-gray-700 mb-2">Target Score:</label>
+                <input type="number" id="target" min="0" class="form-input" placeholder="e.g., 180">
+            </div>
+
+            <!-- Current Score Input -->
+            <div>
+                <label for="score" class="block text-sm font-medium text-gray-700 mb-2">Current Score:</label>
+                <input type="number" id="score" min="0" class="form-input" placeholder="e.g., 120">
+            </div>
+
+            <!-- Wickets Down Input -->
+            <div>
+                <label for="wickets" class="block text-sm font-medium text-gray-700 mb-2">Wickets Down:</label>
+                <input type="number" id="wickets" min="0" max="9" class="form-input" placeholder="e.g., 3">
+            </div>
+
+            <!-- Overs Completed Input (spans two columns on medium screens and up) -->
+            <div class="md:col-span-2">
+                <label for="overs" class="block text-sm font-medium text-gray-700 mb-2">Overs Completed:</label>
+                <input type="number" id="overs" min="0" max="20" step="0.1" class="form-input" placeholder="e.g., 12.5">
+            </div>
+        </div>
+
+        <!-- Predict Button -->
+        <div class="text-center">
+            <button onclick="predict()" class="btn-primary">
+                Predict Winning Probability
+            </button>
+        </div>
+
+        <!-- Prediction Result Display Area -->
+        <div id="result" class="result-display hidden">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Predefined lists of IPL teams and cities for dropdowns
+        const teams = [
+            'KKR', 'SRH', 'CSK', 'DC', 'GT', 'RR', 'MI', 'LSG', 'RCB', 'PBKS'].sort(); // Sort teams alphabetically
+
+        const cities = [
+            'Ahmedabad', 'Bangalore', 'Bloemfontein', 'Cape Town', 'Centurion', 'Chandigarh',
+            'Chennai', 'Cuttack', 'Delhi', 'Dharamsala', 'Durban', 'East London', 'Guwahati',
+            'Hyderabad', 'Indore', 'Jaipur', 'Johannesburg', 'Kimberley', 'Kochi', 'Kolkata',
+            'Lucknow', 'Mohali', 'Mumbai', 'Nagpur', 'Navi Mumbai', 'Pune', 'Raipur', 'Ranchi',
+            'Sharjah', 'Visakhapatnam', 'Abu Dhabi', 'Dubai'
+        ].sort(); // Sort cities alphabetically
+
+        /**
+         * Populates the team and city dropdowns with options.
+         * This function is called when the page finishes loading.
+         */
+        function populateOptions() {
+            const battingTeamSelect = document.getElementById("batting_team");
+            const bowlingTeamSelect = document.getElementById("bowling_team");
+            const citySelect = document.getElementById("city");
+
+            // Clear any existing options to prevent duplicates on reload/re-render
+            battingTeamSelect.innerHTML = '';
+            bowlingTeamSelect.innerHTML = '';
+            citySelect.innerHTML = '';
+
+            // Add a default, disabled, and selected option for better UX
+            const defaultOptionHtml = '<option value="" disabled selected>Select an option</option>';
+            battingTeamSelect.innerHTML += defaultOptionHtml;
+            bowlingTeamSelect.innerHTML += defaultOptionHtml;
+            citySelect.innerHTML += defaultOptionHtml;
+
+            // Populate batting and bowling team dropdowns
+            teams.forEach(team => {
+                const option = `<option value="${team}">${team}</option>`;
+                battingTeamSelect.innerHTML += option;
+                bowlingTeamSelect.innerHTML += option;
+            });
+
+            // Populate venue city dropdown
+            cities.forEach(c => {
+                citySelect.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+        }
+
+        /**
+         * Displays a message in the result area, styling it as an error or success.
+         * @param {string} message - The message to display.
+         * @param {boolean} isError - True if the message is an error, false for success/info.
+         */
+        function displayMessage(message, isError) {
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = message; // Set the message content
+            resultDiv.classList.remove('hidden', 'result-display', 'error-message'); // Reset classes
+
+            if (isError) {
+                resultDiv.classList.add('error-message'); // Apply error styling
+            } else {
+                resultDiv.classList.add('result-display'); // Apply success/info styling
+            }
+            resultDiv.classList.remove('hidden'); // Make the result area visible
+        }
+
+        /**
+         * Handles the prediction request when the "Predict" button is clicked.
+         * Gathers input data, sends it to the Flask backend, and displays the prediction.
+         */
+        async function predict() {
+            // Get references to input elements
+            const battingTeamEl = document.getElementById("batting_team");
+            const bowlingTeamEl = document.getElementById("bowling_team");
+            const cityEl = document.getElementById("city");
+            const targetEl = document.getElementById("target");
+            const scoreEl = document.getElementById("score");
+            const wicketsEl = document.getElementById("wickets");
+            const oversEl = document.getElementById("overs");
+
+            // Collect data from input fields
+            const data = {
+                batting_team: battingTeamEl.value,
+                bowling_team: bowlingTeamEl.value,
+                city: cityEl.value,
+                target: parseInt(targetEl.value),
+                score: parseInt(scoreEl.value),
+                wickets: parseInt(wicketsEl.value),
+                overs: parseFloat(oversEl.value)
+            };
+
+            // --- Input Validation ---
+            // Check if any dropdowns have their default "Select an option" value
+            if (!data.batting_team || !data.bowling_team || !data.city) {
+                displayMessage("Please select both teams and a venue city.", true);
+                return;
+            }
+
+            // Check if numerical fields are valid numbers
+            if (isNaN(data.target) || isNaN(data.score) || isNaN(data.wickets) || isNaN(data.overs)) {
+                displayMessage("Please ensure all numerical fields are filled with valid numbers.", true);
+                return;
+            }
+
+            // Specific validation for wickets and overs
+            if (data.wickets < 0 || data.wickets > 9) {
+                displayMessage("Wickets down must be between 0 and 9.", true);
+                return;
+            }
+            if (data.overs < 0 || data.overs > 20) {
+                displayMessage("Overs completed must be between 0 and 20.", true);
+                return;
+            }
+            if (data.overs > 0 && data.overs % 1 >= 0.6) { // Check for invalid overs like 1.7, 2.8
+                displayMessage("Overs completed should be in format X.0 to X.5 (e.g., 12.3 for 12 overs and 3 balls).", true);
+                return;
+            }
+
+
+            // Prevent same team selection
+            if (data.batting_team === data.bowling_team) {
+                displayMessage("Batting team and Bowling team cannot be the same.", true);
+                return;
+            }
+
+            // Display a loading message while prediction is in progress
+            displayMessage("Predicting...", false); // Use success styling for loading
+
+            try {
+                // Make a POST request to the Flask backend's /predict endpoint
+                const response = await fetch('http://127.0.0.1:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // Specify content type as JSON
+                    },
+                    body: JSON.stringify(data) // Send data as a JSON string
+                });
+
+                const result = await response.json(); // Parse the JSON response from the backend
+
+                if (response.ok) { // Check if the HTTP status code is in the 200-299 range (success)
+                    // Display the predicted probabilities
+                    displayMessage(
+                        `<span class="text-green-700">${data.batting_team}</span>: ${result.batting_team_prob}%<br>
+                         <span class="text-blue-700">${data.bowling_team}</span>: ${result.bowling_team_prob}%`,
+                        false // Not an error
+                    );
+                } else {
+                    // Handle server-side errors (e.g., validation errors from Flask)
+                    displayMessage(`Error: ${result.error || 'Unknown server error'}. Please try again.`, true);
+                }
+            } catch (err) {
+                // Handle network errors (e.g., backend server is not running or unreachable)
+                console.error("Network or fetch error:", err);
+                displayMessage("Error connecting to the prediction server. Please ensure the backend is running and accessible.", true);
+            }
+        }
+
+        // Event listener to populate dropdowns when the entire window has loaded
+        window.onload = populateOptions;
+    </script>
+
+</body>
+</html>
