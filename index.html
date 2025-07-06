@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IPL Win Predictor</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts - Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #6a11cb 0%, #2575fc 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container-card {
+      background-color: #ffffff;
+      border-radius: 25px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      padding: 40px;
+      max-width: 750px;
+      width: 100%;
+      animation: fadeIn 0.8s ease-out;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-input, .form-select {
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 1rem;
+      background-color: #f9f9f9;
+      transition: all 0.3s ease;
+      color: #333;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.25);
+      background-color: #fff;
+      outline: none;
+    }
+
+    .btn-primary {
+      background-color: #4f46e5;
+      color: white;
+      padding: 15px 35px;
+      border-radius: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #4338ca;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(79, 70, 229, 0.4);
+    }
+
+    .result-display {
+      background: linear-gradient(45deg, #e0f7fa, #e8f5e9);
+      border: 1px solid #a7ffeb;
+      border-radius: 15px;
+      padding: 30px;
+      margin-top: 35px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #00695c;
+      text-align: center;
+      line-height: 1.6;
+      animation: slideIn 0.6s ease-out;
+      box-shadow: 0 8px 20px rgba(0, 150, 136, 0.1);
+    }
+
+    .error-message {
+      background-color: #ffebee;
+      border: 1px solid #ffcdd2;
+      color: #d32f2f;
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 25px;
+      font-weight: 600;
+      text-align: center;
+      animation: shake 0.4s ease-in-out;
+      box-shadow: 0 5px 15px rgba(244, 67, 54, 0.2);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #2c3e50;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 .text-yellow-500 {
+      color: #ffc107;
+    }
+
+    label {
+      color: #4a4a4a;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .container-card { padding: 30px; margin: 15px; }
+      h1 { font-size: 2.5rem; margin-bottom: 25px; }
+      .form-input, .form-select, .btn-primary { font-size: 0.95rem; padding: 12px 15px; }
+      .result-display, .error-message { font-size: 1.1rem; padding: 20px; }
+    }
+
+    @media (max-width: 480px) {
+      .container-card { padding: 20px; }
+      h1 { font-size: 2rem; }
+      .btn-primary { padding: 12px 25px; font-size: 0.9rem; }
+    }
+
+    .form-input:focus-visible,
+    .form-select:focus-visible,
+    .btn-primary:focus-visible {
+      outline: 3px solid #1a73e8;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-card">
+    <h1 class="text-center mb-10">
+      <span class="text-yellow-500">IPL</span> Win Predictor
+    </h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div>
+        <label for="batting_team">Batting Team:</label>
+        <select id="batting_team" class="form-select"></select>
+      </div>
+
+      <div>
+        <label for="bowling_team">Bowling Team:</label>
+        <select id="bowling_team" class="form-select"></select>
+      </div>
+
+      <div>
+        <label for="city">Venue City:</label>
+        <select id="city" class="form-select"></select>
+      </div>
+
+      <div>
+        <label for="target">Target Score:</label>
+        <input type="number" id="target" class="form-input" placeholder="e.g., 180" min="0" />
+      </div>
+
+      <div>
+        <label for="score">Current Score:</label>
+        <input type="number" id="score" class="form-input" placeholder="e.g., 120" min="0" />
+      </div>
+
+      <div>
+        <label for="wickets">Wickets Down:</label>
+        <input type="number" id="wickets" class="form-input" placeholder="e.g., 3" min="0" max="9" />
+      </div>
+
+      <div class="md:col-span-2">
+        <label for="overs">Overs Completed:</label>
+        <input type="number" id="overs" class="form-input" placeholder="e.g., 12.5" min="0" max="20" step="0.1" />
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button onclick="predict()" class="btn-primary">Predict Winning Probability</button>
+    </div>
+
+    <div id="result" class="hidden" aria-live="polite"></div>
+  </div>
+
+  <script>
+    const teams = ['KKR', 'SRH', 'CSK', 'DC', 'GT', 'RR', 'MI', 'LSG', 'RCB', 'PBKS'].sort();
+    const cities = ['Ahmedabad', 'Bangalore', 'Bloemfontein', 'Cape Town', 'Centurion', 'Chandigarh', 'Chennai',
+                    'Cuttack', 'Delhi', 'Dharamsala', 'Durban', 'East London', 'Guwahati', 'Hyderabad', 'Indore',
+                    'Jaipur', 'Johannesburg', 'Kimberley', 'Kochi', 'Kolkata', 'Lucknow', 'Mohali', 'Mumbai',
+                    'Nagpur', 'Navi Mumbai', 'Pune', 'Raipur', 'Ranchi', 'Sharjah', 'Visakhapatnam', 'Abu Dhabi', 'Dubai'].sort();
+
+    function populateOptions() {
+      const battingTeamSelect = document.getElementById("batting_team");
+      const bowlingTeamSelect = document.getElementById("bowling_team");
+      const citySelect = document.getElementById("city");
+
+      const defaultOption = '<option value="" disabled selected>Select an option</option>';
+      battingTeamSelect.innerHTML = defaultOption;
+      bowlingTeamSelect.innerHTML = defaultOption;
+      citySelect.innerHTML = defaultOption;
+
+      teams.forEach(team => {
+        const option = `<option value="${team}">${team}</option>`;
+        battingTeamSelect.innerHTML += option;
+        bowlingTeamSelect.innerHTML += option;
+      });
+
+      cities.forEach(city => {
+        citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+      });
+    }
+
+    function displayMessage(message, isError) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = message;
+      resultDiv.className = isError ? 'error-message' : 'result-display';
+    }
+
+    async function predict() {
+      const data = {
+        batting_team: document.getElementById("batting_team").value,
+        bowling_team: document.getElementById("bowling_team").value,
+        city: document.getElementById("city").value,
+        target: parseInt(document.getElementById("target").value),
+        score: parseInt(document.getElementById("score").value),
+        wickets: parseInt(document.getElementById("wickets").value),
+        overs: parseFloat(document.getElementById("overs").value)
+      };
+
+      if (!data.batting_team || !data.bowling_team || !data.city) {
+        displayMessage("Please select both teams and a city.", true);
+        return;
+      }
+
+      if ([data.target, data.score, data.wickets, data.overs].some(isNaN)) {
+        displayMessage("All numerical fields must be filled with valid numbers.", true);
+        return;
+      }
+
+      if (data.wickets < 0 || data.wickets > 9) {
+        displayMessage("Wickets must be between 0 and 9.", true);
+        return;
+      }
+
+      if (data.overs < 0 || data.overs > 20 || (data.overs % 1 >= 0.6)) {
+        displayMessage("Overs should be between 0 and 20 and formatted as X.0 to X.5", true);
+        return;
+      }
+
+      if (data.batting_team === data.bowling_team) {
+        displayMessage("Batting and bowling teams must be different.", true);
+        return;
+      }
+
+      displayMessage("Predicting...", false);
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          displayMessage(
+            `<span class="text-green-700">${data.batting_team}</span>: ${result.batting_team_prob}%<br>
+             <span class="text-blue-700">${data.bowling_team}</span>: ${result.bowling_team_prob}%`, false
+          );
+        } else {
+          displayMessage(`Error: ${result.error || 'Unknown server error'}.`, true);
+        }
+      } catch (err) {
+        console.error(err);
+        displayMessage("Failed to connect to the prediction server.", true);
+      }
+    }
+
+    window.onload = populateOptions;
+  </script>
+</body>
+</html>
